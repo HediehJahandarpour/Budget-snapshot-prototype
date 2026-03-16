@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Budget Snapshot Widget</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+
+  <style>
+    /* Font faces: adjust file names if your files differ */
+    @font-face {
+      font-family: "PP Neue Montreal";
+      src:
+        url("pp-neue-montreal-cufonfonts copy/PPNeueMontreal-Regular.woff2") format("woff2"),
+        url("pp-neue-montreal-cufonfonts copy/PPNeueMontreal-Regular.woff") format("woff");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "PP Neue Montreal Mono";
+      src:
+        url("pp-neue-montreal-cufonfonts copy/PPNeueMontrealMono-Regular.woff2") format("woff2"),
+        url("pp-neue-montreal-cufonfonts copy/PPNeueMontrealMono-Regular.woff") format("woff");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Montreal";
+      src:
+        url("neue-montreal-free-demo-pangram-pangram-030418 copy/NeueMontreal-Regular.woff2") format("woff2"),
+        url("neue-montreal-free-demo-pangram-pangram-030418 copy/NeueMontreal-Regular.woff") format("woff");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      /* Colors from your Figma screenshot (approximate) */
+      --white-30: rgba(255, 255, 255, 0.3);
+      --white: #ffffff;
+      --white-70: rgba(255, 255, 255, 0.7);
+      --gray-light: #e2e2e2;
+      --gray-mid: #8d8d8d;
+      --gray-border: #e1e4e8;
+      --black-soft: #1b1b1b;
+
+      --green: #018848;       /* Testing / success */
+      --blue: #0988ef;        /* Development */
+      --yellow: #feb800;      /* Design */
+      --orange: #ff573b;      /* Main used color / warning */
+
+      --card-bg: #1B1B1B;
+      --BORDER: rgba(255, 255, 255, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000000;
+      font-family: "PP Neue Montreal", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      color: var(--white);
+    }
+
+    .budget-card {
+      width: 420px;
+      background: #1B1B1B;
+      border-radius: 5px;
+      border: 1px solid var(--BORDER, rgba(255, 255, 255, 0.10));
+      padding: 32px 36px 36px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      color: var(--white);
+    }
+
+    .budget-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .budget-card__title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .budget-card__title-main {
+      color: #FFF;
+      font-family: "Neue Montreal", system-ui, sans-serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .budget-card__subtitle {
+      color: var(--gray-mid);
+      font-size: 11px;
+    }
+
+    .budget-card__header-icon {
+      font-family: "Material Symbols Outlined", sans-serif;
+      color: #FFF;
+      font-size: 24px;
+      cursor: pointer;
+      font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+    }
+
+    .budget-card__amount-block {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .budget-card__month {
+      color: rgba(255, 255, 255, 0.5);
+      font-family: "Neue Montreal", system-ui, sans-serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      margin-bottom: 4px;
+    }
+
+    .budget-card__amount {
+      color: #FFF;
+      font-family: "PP Neue Montreal", system-ui, sans-serif;
+      font-size: 48px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+      letter-spacing: -1.592px;
+      margin-bottom: 4px;
+    }
+
+    .budget-card__subamount {
+      font-size: 12px;
+      color: var(--gray-mid);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .budget-card__center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .donut-wrapper {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .donut-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, var(--card-bg) 52%, transparent 53%),
+        #2a2a2a;
+      background-position: center;
+    }
+
+    .donut-progress {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, var(--card-bg) 52%, transparent 53%),
+        conic-gradient(
+          var(--yellow) 0deg,
+          var(--yellow) 162deg,
+          var(--blue) 162deg,
+          var(--blue) 252deg,
+          var(--green) 252deg,
+          var(--green) 288deg,
+          transparent 288deg,
+          transparent 360deg
+        );
+      transition: background 0.6s ease-out;
+    }
+
+    .donut-center-label {
+      position: relative;
+      text-align: center;
+      font-family: "PP Neue Montreal Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .donut-center-label__percent {
+      font-size: 22px;
+      color: var(--orange);
+      margin-bottom: 2px;
+    }
+
+    .donut-center-label__text {
+      font-size: 12px;
+      color: var(--gray-mid);
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--white-70);
+      font-family: "PP Neue Montreal Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .legend-dot--yellow {
+      background: var(--yellow);
+    }
+
+    .legend-dot--blue {
+      background: var(--blue);
+    }
+
+    .legend-dot--green {
+      background: var(--green);
+    }
+
+    .budget-card__footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--white-70);
+      line-height: 1.4;
+      text-align: center;
+
+    }
+
+    .budget-card__footer strong {
+      color: var(--white-70);
+      font-weight: 500;
+    }
+
+    /* Edit modal */
+    .edit-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .edit-modal-overlay.is-open {
+      display: flex;
+    }
+
+    .edit-modal {
+      width: 90%;
+      max-width: 480px;
+      background: #1B1B1B;
+      border-radius: 5px;
+      border: 1px solid var(--BORDER, rgba(255, 255, 255, 0.10));
+      padding: 28px 32px 32px;
+      color: #FFF;
+      font-family: "Neue Montreal", "PP Neue Montreal", system-ui, sans-serif;
+    }
+
+    .edit-modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .edit-modal__title {
+      color: #FFF;
+      font-family: "Neue Montreal", system-ui, sans-serif;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: -0.2px;
+    }
+
+    .edit-modal__close {
+      font-family: "Material Symbols Outlined", sans-serif;
+      font-size: 24px;
+      color: #FFF;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .edit-modal__remaining {
+      font-family: "PP Neue Montreal", system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    .edit-modal__section {
+      margin-bottom: 24px;
+      margin-top: 36px;
+    }
+
+    .edit-modal__section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .edit-modal__section-title .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .edit-modal__divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 16px;
+    }
+
+    .edit-modal__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .edit-modal__label {
+      font-size: 14px;
+      color: var(--gray-mid);
+      margin-left: 24px;
+    }
+
+    .edit-modal__input-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-right: 24px;
+    }
+
+    .edit-modal__currency {
+      font-family: "PP Neue Montreal Mono", ui-monospace, monospace;
+      font-size: 14px;
+      color: #018848;
+    }
+
+    .edit-modal__bracket {
+      font-family: "PP Neue Montreal Mono", ui-monospace, monospace;
+      font-size: 14px;
+      color: #018848;
+    }
+
+    .edit-modal__input {
+      font-family: "PP Neue Montreal Mono", ui-monospace, monospace;
+      font-size: 14px;
+      color: #018848;
+      background: transparent;
+      border: none;
+      border-bottom: 1px dotted #018848;
+      padding: 4px 0;
+      width: 50px;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    .edit-modal__input::placeholder {
+      color: rgba(1, 136, 72, 0.6);
+    }
+
+    .edit-modal__input:focus {
+      outline: none;
+    }
+
+    .edit-modal__textarea {
+      font-family: "Neue Montreal", system-ui, sans-serif;
+      font-size: 13px;
+      color: #FFF;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 5px;
+      padding: 12px 14px;
+      width: 100%;
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .edit-modal__textarea::placeholder {
+      color: var(--gray-mid);
+    }
+
+    .edit-modal__textarea:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .edit-modal__actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "PP Neue Montreal Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .btn--cancel {
+      background: transparent;
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .btn--cancel:hover {
+      background: #000;
+      color: #FFF;
+      border-color: #000;
+    }
+
+    .btn--cancel:active {
+      background: #EE5D3E;
+      border-color: #EE5D3E;
+      color: #FFF;
+    }
+
+    .btn--save {
+      background: #FFF;
+      color: #000;
+    }
+
+    .btn--save:hover {
+      background: #000;
+      color: #FFF;
+    }
+
+    .btn--save:active {
+      background: #4CAF50;
+      color: #FFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="budget-card">
+    <div class="budget-card__header">
+      <div class="budget-card__title">
+        <span class="budget-card__title-main">Current Balance</span>
+        <span class="budget-card__subtitle">Updated 1 month ago</span>
+      </div>
+      <span class="material-symbols-outlined budget-card__header-icon" id="editBudgetBtn" aria-hidden="true" title="Edit budget">edit</span>
+    </div>
+
+    <div class="budget-card__amount-block">
+      <div class="budget-card__month">March</div>
+      <div class="budget-card__amount" id="mainAmount">$27,500</div>
+      <div class="budget-card__subamount" id="mainSubamount">[ 22,500 of 50,000 spent ]</div>
+    </div>
+
+    <div class="budget-card__center">
+      <div class="donut-wrapper">
+        <div class="donut-bg"></div>
+        <div class="donut-progress" id="donutProgress"></div>
+        <div class="donut-center-label">
+          <div class="donut-center-label__percent" id="donutPercent">70%</div>
+          <div class="donut-center-label__text">used</div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot legend-dot--yellow"></div>
+          <span>Design</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-dot--blue"></div>
+          <span>Development</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-dot--green"></div>
+          <span>Testing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="budget-card__footer" id="mainExplanation">
+      Spending increased this month due to additional development hours required for feature refinement.
+    </div>
+  </div>
+
+  <!-- Edit budget modal -->
+  <div class="edit-modal-overlay" id="editModalOverlay" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-labelledby="editModalTitle">
+      <div class="edit-modal__header">
+        <h2 class="edit-modal__title" id="editModalTitle">Budget overview</h2>
+        <button type="button" class="edit-modal__close material-symbols-outlined" id="closeModalBtn" aria-label="Close">close</button>
+      </div>
+      <div class="edit-modal__remaining" id="modalRemaining">$27,500</div>
+
+      <div class="edit-modal__section">
+        <div class="edit-modal__section-title">
+          <span class="material-symbols-outlined">sync</span>
+          Update the budget
+        </div>
+        <div class="edit-modal__divider"></div>
+        <div class="edit-modal__row">
+          <span class="edit-modal__label">Total Budget</span>
+          <span class="edit-modal__input-wrap">
+            <span class="edit-modal__bracket">[</span>
+            <span class="edit-modal__currency">$</span>
+            <input type="text" class="edit-modal__input" id="inputTotalBudget" placeholder="50,000" value="50000" inputmode="numeric" />
+            <span class="edit-modal__bracket">]</span>
+          </span>
+        </div>
+        <div class="edit-modal__row">
+          <span class="edit-modal__label">Amount Spent</span>
+          <span class="edit-modal__input-wrap">
+            <span class="edit-modal__bracket">[</span>
+            <span class="edit-modal__currency">$</span>
+            <input type="text" class="edit-modal__input" id="inputAmountSpent" placeholder="22,500" value="22500" inputmode="numeric" />
+            <span class="edit-modal__bracket">]</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="edit-modal__section">
+        <div class="edit-modal__section-title">
+          <span class="material-symbols-outlined">edit</span>
+          Edit the explanation
+        </div>
+        <div class="edit-modal__divider"></div>
+        <textarea class="edit-modal__textarea" id="inputExplanation" placeholder="Explain spending changes…">Spending increased this month due to additional development hours required for feature refinement.</textarea>
+      </div>
+
+      <div class="edit-modal__actions">
+        <button type="button" class="btn btn--cancel" id="cancelBtn">
+          <span class="material-symbols-outlined">close</span>
+          Cancel
+        </button>
+        <button type="button" class="btn btn--save" id="saveBtn">
+          <span class="material-symbols-outlined">check</span>
+          Save changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const donut = document.getElementById("donutProgress");
+    const percentLabel = document.getElementById("donutPercent");
+    const editBtn = document.getElementById("editBudgetBtn");
+    const modalOverlay = document.getElementById("editModalOverlay");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const inputTotal = document.getElementById("inputTotalBudget");
+    const inputSpent = document.getElementById("inputAmountSpent");
+    const inputExplanation = document.getElementById("inputExplanation");
+    const modalRemaining = document.getElementById("modalRemaining");
+    const mainAmount = document.getElementById("mainAmount");
+    const mainSubamount = document.getElementById("mainSubamount");
+    const mainExplanation = document.getElementById("mainExplanation");
+
+    // Segment ratio of "used" portion: design 40, dev 25, test 15 (out of 80)
+    const SEGMENT_RATIO = { design: 40 / 80, development: 25 / 80, testing: 15 / 80 };
+
+    function parseNum(str) {
+      const n = parseInt(String(str).replace(/\D/g, ""), 10);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatMoney(n) {
+      return n.toLocaleString();
+    }
+
+    function updateModalRemaining() {
+      const total = parseNum(inputTotal.value);
+      const spent = parseNum(inputSpent.value);
+      const remaining = Math.max(0, total - spent);
+      modalRemaining.textContent = "$" + formatMoney(remaining);
+    }
+
+    function setDonutFromUsedPercent(usedPercent) {
+      usedPercent = Math.min(100, Math.max(0, usedPercent));
+      const design = (usedPercent * SEGMENT_RATIO.design);
+      const development = (usedPercent * SEGMENT_RATIO.development);
+      const testing = (usedPercent * SEGMENT_RATIO.testing);
+      const degDesign = (design / 100) * 360;
+      const degDevelopment = (development / 100) * 360;
+      const degTesting = (testing / 100) * 360;
+      const degUsed = degDesign + degDevelopment + degTesting;
+
+      donut.style.background =
+        "radial-gradient(circle at center, var(--card-bg) 52%, transparent 53%)," +
+        "conic-gradient(" +
+        "var(--yellow) 0deg, var(--yellow) " + degDesign + "deg," +
+        "var(--blue) " + degDesign + "deg, var(--blue) " + (degDesign + degDevelopment) + "deg," +
+        "var(--green) " + (degDesign + degDevelopment) + "deg, var(--green) " + degUsed + "deg," +
+        "transparent " + degUsed + "deg, transparent 360deg" +
+        ")";
+      const rounded = Math.round(usedPercent);
+      percentLabel.textContent = rounded + "%";
+
+      // Color rules for the percent text:
+      // < 40% => green, 40–70% => yellow, > 70% => red
+      if (rounded < 40) {
+        percentLabel.style.color = "var(--green)";
+      } else if (rounded <= 70) {
+        percentLabel.style.color = "var(--yellow)";
+      } else {
+        percentLabel.style.color = "var(--orange)";
+      }
+    }
+
+    function updateDonutAnimated(targetUsedPercent) {
+      targetUsedPercent = Math.min(100, Math.max(0, targetUsedPercent));
+      const designTarget = targetUsedPercent * SEGMENT_RATIO.design;
+      const developmentTarget = targetUsedPercent * SEGMENT_RATIO.development;
+      const testingTarget = targetUsedPercent * SEGMENT_RATIO.testing;
+      let designCurrent = 0, developmentCurrent = 0, testingCurrent = 0;
+      const step = 0.8;
+      const intervalMs = 16;
+
+      const timer = setInterval(() => {
+        let done = true;
+        if (designCurrent < designTarget) {
+          designCurrent = Math.min(designCurrent + step, designTarget);
+          done = false;
+        }
+        if (developmentCurrent < developmentTarget) {
+          developmentCurrent = Math.min(developmentCurrent + step, developmentTarget);
+          done = false;
+        }
+        if (testingCurrent < testingTarget) {
+          testingCurrent = Math.min(testingCurrent + step, testingTarget);
+          done = false;
+        }
+        const totalUsed = designCurrent + developmentCurrent + testingCurrent;
+        setDonutFromUsedPercent(totalUsed);
+        if (done) clearInterval(timer);
+      }, intervalMs);
+    }
+
+    function openModal() {
+      const total = parseNum(inputTotal.value);
+      const spent = parseNum(inputSpent.value);
+      inputTotal.value = total === 0 ? "" : formatMoney(total);
+      inputSpent.value = spent === 0 ? "" : formatMoney(spent);
+      updateModalRemaining();
+      modalOverlay.classList.add("is-open");
+      modalOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove("is-open");
+      modalOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    editBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+    modalOverlay.addEventListener("click", function (e) {
+      if (e.target === modalOverlay) closeModal();
+    });
+    inputTotal.addEventListener("input", updateModalRemaining);
+    inputSpent.addEventListener("input", updateModalRemaining);
+
+    // Add commas when the user leaves the field
+    inputTotal.addEventListener("blur", function () {
+      const v = parseNum(inputTotal.value);
+      inputTotal.value = v ? formatMoney(v) : "";
+      updateModalRemaining();
+    });
+
+    inputSpent.addEventListener("blur", function () {
+      const v = parseNum(inputSpent.value);
+      inputSpent.value = v ? formatMoney(v) : "";
+      updateModalRemaining();
+    });
+
+    saveBtn.addEventListener("click", function () {
+      const total = parseNum(inputTotal.value);
+      const spent = parseNum(inputSpent.value);
+      const remaining = Math.max(0, total - spent);
+      const explanation = inputExplanation.value.trim();
+
+      if (total <= 0) {
+        inputTotal.focus();
+        return;
+      }
+
+      mainAmount.textContent = "$" + formatMoney(remaining);
+      mainSubamount.textContent = "[ " + formatMoney(spent) + " of " + formatMoney(total) + " spent ]";
+      mainExplanation.textContent = explanation || mainExplanation.textContent;
+
+      const usedPercent = total > 0 ? (spent / total) * 100 : 0;
+      updateDonutAnimated(usedPercent);
+
+      closeModal();
+    });
+
+    // Initial load: animate donut to 80% (45% of total = 50k spent of 50k would be 100%; we start 22.5/50 = 45%)
+    const initialTotal = 50000, initialSpent = 22500;
+    const initialUsed = initialTotal > 0 ? (initialSpent / initialTotal) * 100 : 0;
+    updateDonutAnimated(initialUsed);
+  </script>
+</body>
+</html>
+
